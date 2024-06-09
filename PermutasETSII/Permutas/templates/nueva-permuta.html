@@ -45,31 +45,14 @@
         }
     </style>
 </head>
-
 <body>
     <ul>
-        <li><a class="active" href="#home">Home</a></li>
-        <li><a href="/permutas">Permutas</a></li>
-        <li><a href="/solicitar-permuta">Crear permuta</a></li>
-
-        {% if request.user.is_authenticated %}
-        <li><a class="profile" href="#">Mi Perfil</a></li>
-        <li><a class="mis-permutas" href="#">Mis premutas</a></li> 
-        {% endif %}
-        {% if request.user.is_authenticated %}
-        <!--<li><a href="{% url 'logout' %}">Logout</a></li>-->
-        {%else%}
-        <li class="right"><a href="">Registro</a></li>
-        <li class="right"><a href="">Iniciar sesión</a></li>
-        {% endif %}
+        <li><a href="/home">Home</a></li>
+        <li><a class="active" href="#news">Permutas</a></li>
+        <li><a href="#contact">Crear permuta</a></li>
+        <li class="right"><a href="#about">Perfil</a></li>
     </ul>
     <h1>Permutas ETSII</h1>
     <p class = "description">Bienvenido a la plataforma de permutas de la ETSII</p>
 </body>
-<footer>
-    <div class="row">
-        <p>Aplicación web de gestión de las permutas de la Escuela Técnico Superior de Ingeniería Informática de la Universidad de Sevilla.<br> hecha por: <a href="https://es.linkedin.com/in/francisco-jos%C3%A9-anillo-carrasco-805744200" target="_blank">Francisco José Anillo Carrasco</a></p>
-        <p> Trabajo Fin de Master </p>
-    </div>
-</footer>
 </html>
