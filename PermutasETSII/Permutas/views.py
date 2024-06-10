@@ -92,7 +92,7 @@ class StudentUpdateForm(forms.ModelForm):
 class EstudianteUpdateForm(forms.ModelForm):
     class Meta:
         model = Estudiante
-        fields = ['nombre', 'apellido', 'email']
+        fields = ['nombre', 'apellido', 'image']
 
 @logout_required
 def custom_login(request):
