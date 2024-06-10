@@ -1,58 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Permutas ETSII</title>
-    <style>
-        body {
-            font-size: 22px;
-        }
-
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #333;
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-        }
-
-        li {
-            float: left;
-        }
-
-        li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-
-        li a:hover {
-            background-color: #111;
-        }
-
-        .active {
-            background-color: #3E58AA;
-        }
-        li.right {float: right;}
-        .description{
-            font-size: 18 px;
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <ul>
-        <li><a href="/home">Home</a></li>
-        <li><a class="active" href="#news">Permutas</a></li>
-        <li><a href="#contact">Crear permuta</a></li>
-        <li class="right"><a href="#about">Perfil</a></li>
-    </ul>
-    <h1>Permutas ETSII</h1>
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>Crear permuta</h1>
     <p class = "description">Bienvenido a la plataforma de permutas de la ETSII</p>
 </body>
-</html>
+{% endblock content %}

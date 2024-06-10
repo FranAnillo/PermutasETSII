@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Permutas ETSII</title>
+    <style>
+        body {
+            font-size: 22px;
+        }
+
+        header ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+        }
+
+        header ul li {
+            float: left;
+        }
+
+        header ul li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        header ul li a:hover {
+            background-color: #111;
+        }
+
+        .active {
+            background-color: #3E58AA;
+        }
+
+        header ul li.right {
+            float: right;
+        }
+
+        .description {
+            font-size: 18px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        ul li {
+            color: red; /* Change color to red for all other <li> elements */
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        footer a {
+            color: #3E58AA;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .button-container {
+            background-color: #3E58AA;
+            color: white;
+            display: grid;
+            text-align: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <ul id="menu">
+            <li><a class="home" href="/">Home</a></li>
+            <li><a class = "permutas" href="/permutas">Permutas</a></li>
+            <li><a class = "nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
+
+            {% if request.user.is_authenticated %}
+            <li><a class="profile" href="#">Mi Perfil</a></li>
+            <li><a class="mis-permutas" href="#">Mis permutas</a></li> 
+            <li class="right"><a href="">Logout</a></li>
+            {% else %}
+            <li class="right"><a href="/register">Registro</a></li>
+            <li class="right"><a href="">Iniciar sesión</a></li>
+            {% endif %}
+        </ul>
+    </header>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="notification {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="main">
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <footer>
+        <div class="row">
+            <p>Aplicación web de gestión de las permutas de la Escuela Técnico Superior de Ingeniería Informática de la Universidad de Sevilla.<br> Diseñada por: <a href="https://es.linkedin.com/in/francisco-jos%C3%A9-anillo-carrasco-805744200" target="_blank">Francisco José Anillo Carrasco</a></p>
+            <p>Trabajo Fin de Master</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var menuItems = document.querySelectorAll('#menu li a');
+
+            menuItems.forEach(function (menuItem) {
+                menuItem.addEventListener('click', function () {
+                    menuItems.forEach(function (item) {
+                        item.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

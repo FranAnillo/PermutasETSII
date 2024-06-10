@@ -7,15 +7,15 @@ class Asignatura (models.Model):
 
   def __str__(self):
     return  f'{self.nombre}'
-
-class Estudiante(models.Model):
-  user= models.OneToOneField(User, on_delete= models.CASCADE)
-  nombre = models.CharField(max_length=255)
-  apellido = models.CharField(max_length=255)
-  email = models.EmailField(max_length=255)
   
-  def __str__(self):
-    return f'Perfil de {self.user.username}'
+class Estudiante(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=255)
+    apellido = models.CharField(max_length=255)
+    email = models.EmailField(max_length=255)
+
+    def __str__(self):
+        return f'Perfil de {self.user.username}'
 
 class Grupo (models.Model):
   numero_grupo = models.IntegerField()

@@ -1,75 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Permutas ETSII</title>
-    <style>
-        body {
-            font-size: 22px;
-        }
+{% extends 'layout.html' %}
+{% block content %}
 
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #333;
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-        }
-
-        li {
-            float: left;
-        }
-
-        li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-
-        li a:hover {
-            background-color: #111;
-        }
-
-        .active {
-            background-color: #3E58AA;
-        }
-        li.right {float: right;}
-        .description{
-            font-size: 18 px;
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
-</head>
-
-<body>
-    <ul>
-        <li><a class="active" href="#home">Home</a></li>
-        <li><a href="/permutas">Permutas</a></li>
-        <li><a href="/solicitar-permuta">Crear permuta</a></li>
-
-        {% if request.user.is_authenticated %}
-        <li><a class="profile" href="#">Mi Perfil</a></li>
-        <li><a class="mis-permutas" href="#">Mis premutas</a></li> 
-        {% endif %}
-        {% if request.user.is_authenticated %}
-        <!--<li><a href="{% url 'logout' %}">Logout</a></li>-->
-        {%else%}
-        <li class="right"><a href="">Registro</a></li>
-        <li class="right"><a href="">Iniciar sesión</a></li>
-        {% endif %}
-    </ul>
     <h1>Permutas ETSII</h1>
     <p class = "description">Bienvenido a la plataforma de permutas de la ETSII</p>
 </body>
-<footer>
-    <div class="row">
-        <p>Aplicación web de gestión de las permutas de la Escuela Técnico Superior de Ingeniería Informática de la Universidad de Sevilla.<br> hecha por: <a href="https://es.linkedin.com/in/francisco-jos%C3%A9-anillo-carrasco-805744200" target="_blank">Francisco José Anillo Carrasco</a></p>
-        <p> Trabajo Fin de Master </p>
-    </div>
-</footer>
-</html>
+{% endblock content %}

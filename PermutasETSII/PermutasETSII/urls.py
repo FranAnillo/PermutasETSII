@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from Permutas.views import permutas,todasPermutas,nuevaPermutas
+from Permutas.views import permutas,todasPermutas,nuevaPermutas,registro
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('permutas/', todasPermutas, name='todasPermutas'),
     path('solicitar-permuta/', nuevaPermutas, name='nuevaPermuta'),
     path('', permutas, name='estudiantes'),
+    path('register/', registro, name='register'),
 ]
