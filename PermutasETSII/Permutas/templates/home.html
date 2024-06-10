@@ -1,6 +1,10 @@
 {% extends 'layout.html' %}
 {% block content %}
-
+{% if request.user.is_authenticated %}
+    <p>Usuario autenticado</p>
+{% else %}
+    <p>Usuario no autenticado</p>
+{% endif %}
     <h1>Permutas ETSII</h1>
     <p class = "description">Bienvenido a la plataforma de permutas de la ETSII</p>
 </body>

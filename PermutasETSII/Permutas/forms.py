@@ -27,3 +27,13 @@ class CustomAuthenticationForm(AuthenticationForm):
         label=_("Contraseña"),
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
     )
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+class EstudianteUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Estudiante
+        fields = ['nombre', 'apellido', 'image']

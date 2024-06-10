@@ -17,8 +17,8 @@ from django.contrib.auth import logout as auth_logout
 # Create your views here.
 
 def home(request):
-    template = loader.get_template('home.html')
-    return HttpResponse(template.render())
+    print("Usuario autenticado:", request.user.is_authenticated)
+    return render(request, 'home.html')
 @login_required
 def logout(request):
     auth_logout(request)
@@ -26,12 +26,12 @@ def logout(request):
     return redirect('login')  # O redirigir a la página de inicio si prefieres
 @login_required
 def nuevaPermutas(request):
-    template = loader.get_template('nueva-permuta.html')
-    return HttpResponse(template.render())
+    print("Usuario autenticado:", request.user.is_authenticated)
+    return render(request, 'nueva-permuta.html')
 
 def todasPermutas(request):
-    template = loader.get_template('permutas.html')
-    return HttpResponse(template.render())
+    print("Usuario autenticado:", request.user.is_authenticated)
+    return render(request, 'permutas.html')
 
 @logout_required
 def registro(request):
@@ -105,7 +105,7 @@ def custom_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('home')  # Redirige a la página de inicio o donde desees
+                return redirect('profile')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:

@@ -1,19 +1,23 @@
 {% extends 'layout.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-    <h1>Perfil de Usuario</h1>
-    <form method="post">
-        {% csrf_token %}
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Información de Usuario</legend>
-            {{ u_form.as_p }}
-        </fieldset>
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Información del Estudiante</legend>
-            {{ e_form.as_p }}
-        </fieldset>
-        <div class="button-container">
-            <button type="submit">Actualizar</button>
-        </div>
-    </form>
+    <div class="profile-container">
+        <h2>Mi Perfil</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ u_form|crispy }}
+                {{ e_form|crispy }}
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+        </form>
+    </div>
+    <div class="profile-image">
+        {% if user.estudiante.image %}
+            <img src="{{ user.estudiante.image.url }}" alt="Profile Image" class="img-thumbnail">
+        {% else %}
+            <img src="{{ MEDIA_URL }}default.jpg" alt="Default Profile Image" class="img-thumbnail">
+        {% endif %}
+    </div>
 {% endblock content %}

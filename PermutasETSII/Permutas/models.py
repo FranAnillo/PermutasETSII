@@ -13,6 +13,7 @@ class Estudiante(models.Model):
     nombre = models.CharField(max_length=255)
     apellido = models.CharField(max_length=255)
     email = models.EmailField(max_length=255)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
 
     def __str__(self):
         return f'Perfil de {self.user.username}'

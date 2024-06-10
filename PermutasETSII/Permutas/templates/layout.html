@@ -84,23 +84,25 @@
     <header>
         <ul id="menu">
             <li><a class="home" href="/">Home</a></li>
-            <li><a class = "permutas" href="/permutas">Permutas</a></li>
-            {% if request.user.is_authenticated %}
-            <li><a class = "nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
-            <li><a class="profile" href="{% url 'profile' %}">Mi Perfil</a></li>
-            <li><a class="mis-permutas" href="#">Mis permutas</a></li> 
-            <li class="right"><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+            <li><a class="permutas" href="/permutas">Permutas</a></li>
+            {% if user.is_authenticated %}
+                <li><a class="nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
+                <li><a class="profile" href="{% url 'profile' %}">Mi Perfil</a></li>
+                <li><a class="mis-permutas" href="#">Mis permutas</a></li>
+                <li class="right" ><a href="{% url 'logout' %}">Cerrar sesión</a></li>
             {% else %}
-            <li class="right"><a href="/register">Registro</a></li>
-            <li class="right"><a href="{% url 'login' %}">Iniciar sesión</a></li>
+                <li class="right"><a href="/register">Registro</a></li>
+                <li class="right"><a href="{% url 'login' %}">Iniciar sesión</a></li>
             {% endif %}
         </ul>
     </header>
 
     {% if messages %}
-    {% for message in messages %}
-    <div class="notification {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
+    <div>
+        {% for message in messages %}
+        <div class="notification {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <div class="main">
@@ -114,20 +116,5 @@
             <p>Trabajo Fin de Master</p>
         </div>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var menuItems = document.querySelectorAll('#menu li a');
-
-            menuItems.forEach(function (menuItem) {
-                menuItem.addEventListener('click', function () {
-                    menuItems.forEach(function (item) {
-                        item.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                });
-            });
-        });
-    </script>
 </body>
 </html>
