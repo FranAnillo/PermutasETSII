@@ -85,15 +85,14 @@
         <ul id="menu">
             <li><a class="home" href="/">Home</a></li>
             <li><a class = "permutas" href="/permutas">Permutas</a></li>
-            <li><a class = "nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
-
             {% if request.user.is_authenticated %}
-            <li><a class="profile" href="#">Mi Perfil</a></li>
+            <li><a class = "nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
+            <li><a class="profile" href="{% url 'profile' %}">Mi Perfil</a></li>
             <li><a class="mis-permutas" href="#">Mis permutas</a></li> 
-            <li class="right"><a href="">Logout</a></li>
+            <li class="right"><a href="{% url 'logout' %}">Cerrar sesión</a></li>
             {% else %}
             <li class="right"><a href="/register">Registro</a></li>
-            <li class="right"><a href="">Iniciar sesión</a></li>
+            <li class="right"><a href="{% url 'login' %}">Iniciar sesión</a></li>
             {% endif %}
         </ul>
     </header>

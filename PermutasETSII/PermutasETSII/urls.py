@@ -16,13 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
-from Permutas.views import permutas,todasPermutas,nuevaPermutas,registro
+
+from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('permutas/', todasPermutas, name='todasPermutas'),
     path('solicitar-permuta/', nuevaPermutas, name='nuevaPermuta'),
-    path('', permutas, name='estudiantes'),
+    path('', home, name='home'),
     path('register/', registro, name='register'),
+    path('login/', custom_login, name='login'),
+    path('logout/', logout, name='logout'),
+    path('accounts/profile/', profile, name='profile'),
+
 ]

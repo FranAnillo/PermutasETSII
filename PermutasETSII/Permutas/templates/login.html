@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h1>Iniciar Sesión</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="button-container">
+            <button type="submit">Iniciar Sesión</button>
+        </div>
+    </form>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="notification {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock content %}
