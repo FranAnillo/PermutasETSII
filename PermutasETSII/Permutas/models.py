@@ -44,6 +44,7 @@ class Permuta(models.Model):
     grupo1 = models.ForeignKey(Grupo, related_name='permuta_grupo1', on_delete=models.CASCADE)
     grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.CASCADE)
     asignatura = models.ForeignKey(Asignatura, related_name='asignatura',on_delete=models.CASCADE)
+    estado =models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
 
 
    
