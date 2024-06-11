@@ -12,23 +12,24 @@
     }
 </style>
 
-    <div class="profile-container">
-        <h2>Mi Perfil</h2>
-        <div class="profile-image">
-            {% if user.estudiante.image %}
-                <img src="{{ user.estudiante.image.url }}" alt="Profile Image" class="img-thumbnail">
-            {% else %}
-                <img src="{{ MEDIA_URL }}default.jpg" alt="Default Profile Image" class="img-thumbnail">
-            {% endif %}
-        </div>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                {{ u_form|crispy }}
-                {{ e_form|crispy }}
-            </div>
-            <button class="button-container" type="submit" class="btn btn-primary">Actualizar Perfil</button>
-        </form>
+<div class="profile-container">
+    <h2>Mi Perfil</h2>
+    <div class="profile-image">
+        {% if user.estudiante.image %}
+            <img src="{{ user.estudiante.image.url }}" alt="Profile Image" class="img-thumbnail">
+        {% else %}
+            <img src="{{ MEDIA_URL }}default.jpg" alt="Default Profile Image" class="img-thumbnail">
+        {% endif %}
+        <p>Estudiante del {{ user.estudiante.grado }}</p>
     </div>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ u_form|crispy }}
+            {{ e_form|crispy }}
+        </div>
+        <button class="button-container" type="submit" class="btn btn-primary">Actualizar Perfil</button>
+    </form>
+</div>
     
 {% endblock content %}

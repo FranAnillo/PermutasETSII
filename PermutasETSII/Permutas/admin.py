@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from .models import Asignatura, Estudiante, Grupo, Permuta
+from .models import Asignatura, Estudiante, Grupo, Permuta, Grado
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
@@ -10,6 +10,7 @@ admin.site.register(Asignatura)
 admin.site.register(Estudiante)
 admin.site.register(Grupo)
 admin.site.register(Permuta)
+admin.site.register(Grado)
 
 @receiver(post_migrate)
 def create_groups_and_permissions(sender, **kwargs):

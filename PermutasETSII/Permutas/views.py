@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, Group
 
 from .decorators import logout_required
 from .models import Estudiante
-from .forms import CustomAuthenticationForm, StudentRegisterForm
+from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as auth_logout
@@ -63,7 +63,7 @@ def registro(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        u_form = StudentUpdateForm(request.POST, instance=request.user)
+        u_form = UserUpdateForm(request.POST, instance=request.user)
         e_form = EstudianteUpdateForm(request.POST, request.FILES, instance=request.user.estudiante)
         if u_form.is_valid() and e_form.is_valid():
             u_form.save()
@@ -71,7 +71,7 @@ def profile(request):
             messages.success(request, f'¡Tu perfil ha sido actualizado!')
             return redirect('profile')
     else:
-        u_form = StudentUpdateForm(instance=request.user)
+        u_form = UserUpdateForm(instance=request.user)
         e_form = EstudianteUpdateForm(instance=request.user.estudiante)
 
     context = {
@@ -81,25 +81,6 @@ def profile(request):
 
     return render(request, 'profile.html', context)
 
-class StudentRegisterForm(UserCreationForm):
-    nombre = forms.CharField(max_length=255)
-    apellido = forms.CharField(max_length=255)
-    email = forms.EmailField()
-
-    class Meta:
-        model = User
-        fields = ['username', 'nombre', 'apellido', 'email', 'password1', 'password2']
-        help_texts = {k: "" for k in fields}
-
-class StudentUpdateForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email']
-
-class EstudianteUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Estudiante
-        fields = ['nombre', 'apellido', 'image']
 
 @logout_required
 def custom_login(request):
