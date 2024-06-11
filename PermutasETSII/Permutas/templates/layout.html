@@ -90,6 +90,9 @@
                 <li><a class="profile" href="{% url 'profile' %}">Mi Perfil</a></li>
                 <li><a class="mis-permutas" href="#">Mis permutas</a></li>
                 <li class="right" ><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+            {% if perms.auth.add_user %}
+                <li><a href="{% url 'admin:index' %}">Admin Panel</a></li>
+            {% endif %}
             {% else %}
                 <li class="right"><a href="/register">Registro</a></li>
                 <li class="right"><a href="{% url 'login' %}">Iniciar sesión</a></li>

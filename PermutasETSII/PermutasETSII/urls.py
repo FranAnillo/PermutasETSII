@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
     path('permutas/', todasPermutas, name='todasPermutas'),
     path('solicitar-permuta/', nuevaPermutas, name='nuevaPermuta'),
     path('', home, name='home'),

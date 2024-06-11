@@ -3,9 +3,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.template import loader
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from .decorators import logout_required
 from .models import Estudiante
@@ -15,6 +15,13 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
+
+def assign_user_to_group(request, user_id, group_name):
+    user = User.objects.get(id=user_id)
+    group = Group.objects.get(name=group_name)
+    user.groups.add(group)
+    user.save()
+    return redirect('home')
 
 def home(request):
     print("Usuario autenticado:", request.user.is_authenticated)
@@ -113,3 +120,30 @@ def custom_login(request):
     else:
         form = CustomAuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+
+
+
+@login_required
+@permission_required('Permutas.view_permuta', raise_exception=True)
+def view_permuta(request):
+    # Tu lógica aquí
+    return render(request, 'view_permuta.html')
+
+@login_required
+@permission_required('Permutas.add_permuta', raise_exception=True)
+def add_permuta(request):
+    # Tu lógica aquí
+    return render(request, 'add_permuta.html')
+
+@login_required
+@permission_required('Permutas.change_permuta', raise_exception=True)
+def change_permuta(request):
+    # Tu lógica aquí
+    return render(request, 'change_permuta.html')
+
+@login_required
+@permission_required('Permutas.delete_permuta', raise_exception=True)
+def delete_permuta(request):
+    # Tu lógica aquí
+    return render(request, 'delete_permuta.html')
