@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 
 class Grado (models.Model):
@@ -40,11 +41,16 @@ class Grupo (models.Model):
 
 class Permuta(models.Model):
     estudiante1 = models.ForeignKey(Estudiante, related_name='permuta_estudiante1', on_delete=models.CASCADE)
-    estudiante2 = models.ForeignKey(Estudiante, related_name='permuta_estudiante2', on_delete=models.CASCADE)
+    estudiante2 = models.ForeignKey(Estudiante, related_name='permuta_estudiante2', on_delete=models.SET_NULL, null=True, blank=True)
     grupo1 = models.ForeignKey(Grupo, related_name='permuta_grupo1', on_delete=models.CASCADE)
     grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.CASCADE)
-    asignatura = models.ForeignKey(Asignatura, related_name='asignatura',on_delete=models.CASCADE)
-    estado =models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
+    asignatura = models.ForeignKey(Asignatura, related_name='asignatura', on_delete=models.CASCADE)
+    estado = models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
 
+    def clean(self):
+        if self.estudiante1 == self.estudiante2:
+            raise ValidationError("Estudiante 1 y Estudiante 2 deben ser diferentes")
 
+    def __str__(self):
+        return f'Permuta entre {self.estudiante1.user.username} y {self.estudiante2.user.username} en {self.asignatura.nombre_asignatura}'
    
