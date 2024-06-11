@@ -43,7 +43,7 @@ class Permuta(models.Model):
     estudiante1 = models.ForeignKey(Estudiante, related_name='permuta_estudiante1', on_delete=models.CASCADE)
     estudiante2 = models.ForeignKey(Estudiante, related_name='permuta_estudiante2', on_delete=models.SET_NULL, null=True, blank=True)
     grupo1 = models.ForeignKey(Grupo, related_name='permuta_grupo1', on_delete=models.CASCADE)
-    grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.CASCADE)
+    grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.SET_NULL, null=True, blank=True)
     asignatura = models.ForeignKey(Asignatura, related_name='asignatura', on_delete=models.CASCADE)
     estado = models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
 
