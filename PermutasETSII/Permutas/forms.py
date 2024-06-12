@@ -36,7 +36,7 @@ class UserUpdateForm(forms.ModelForm):
 class EstudianteUpdateForm(forms.ModelForm):
     class Meta:
         model = Estudiante
-        fields = ['nombre', 'apellido', 'dni', 'domicilio', 'provincia', 'telefono', 'image']
+        fields = ['nombre', 'apellido', 'dni', 'domicilio', 'provincia','poblacion', 'telefono', 'image']
 
     def __init__(self, *args, **kwargs):
         super(EstudianteUpdateForm, self).__init__(*args, **kwargs)

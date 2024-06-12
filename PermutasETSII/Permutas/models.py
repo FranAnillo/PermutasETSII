@@ -27,6 +27,7 @@ class Estudiante(models.Model):
     grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
     domicilio = models.CharField(max_length=255)
     provincia = models.CharField(max_length=50)
+    poblacion = models.CharField(max_length=50)
     telefono = models.CharField(max_length=15, validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="El número de teléfono debe ingresarse en el formato: '+999999999'. Hasta 15 dígitos permitidos.")])  # Nuevo campo de teléfono
     
     def __str__(self):
