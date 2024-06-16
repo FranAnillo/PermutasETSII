@@ -42,11 +42,34 @@ def generate_pdf_from_existing(request):
         c.drawString(358, 572, "X") #Ingeniería de la Salud
 
         #Solicitante 1
-        #c.drawString(130, 500, "75967897")
-        c.drawString(130, 496, "1300") #Código Postal
+        c.drawString(87, 526, "75967897")#DNI-Número
+        c.drawString(220, 526, "R")#DNI-Letra
         c.setFont("Helvetica", 10)
-        c.drawString(254, 497, "La Línea de la Concepción") #Provincia
+        c.drawString(300, 526, "Francisco José Anillo Carrasco")#Nombre
+        c.setFont("Helvetica", 9)
+        c.drawString(130, 512, "Calle Gabriel Miró 52 M") #Código Postal
+        c.setFont("Helvetica", 7)
+        c.drawString(464, 512, "La Línea de la Concepción") #Código Postal
+        c.setFont("Helvetica", 12)
+        c.drawString(130, 496, "11300") #Código Postal
+        c.setFont("Helvetica", 10)
+        c.drawString(254, 497, "Cádiz") #Provincia
+        c.drawString(464, 497, "667525025") #Teléfono
+        
         #Solicitante 2
+        c.drawString(87, 355, "75967897")#DNI-Número
+        c.drawString(220, 355, "R")#DNI-Letra
+        c.setFont("Helvetica", 10)
+        c.drawString(300, 355, "Francisco José Anillo Carrasco")#Nombre
+        c.setFont("Helvetica", 9)
+        c.drawString(130, 340, "Calle Gabriel Miró 52 M") #Código Postal
+        c.setFont("Helvetica", 7)
+        c.drawString(464, 340, "La Línea de la Concepción") #Código Postal
+        c.setFont("Helvetica", 12)
+        c.drawString(130, 325, "11300") #Código Postal
+        c.setFont("Helvetica", 10)
+        c.drawString(254, 326, "Cádiz") #Provincia
+        c.drawString(464, 326, "667525025") #Teléfono
 
         # Terminar el PDF
         c.showPage()
