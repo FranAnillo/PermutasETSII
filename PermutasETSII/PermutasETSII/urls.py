@@ -21,8 +21,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout
+from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout,generate_pdf_from_existing
 
+    
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('permutas/', todasPermutas, name='todasPermutas'),
@@ -32,6 +33,7 @@ urlpatterns = [
     path('login/', custom_login, name='login'),
     path('logout/', logout, name='logout'),
     path('accounts/profile/', profile, name='profile'),
+    path('generate-pdf/', generate_pdf_from_existing, name='generate_pdf'),
 
 ]
 if settings.DEBUG:

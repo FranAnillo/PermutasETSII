@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.template import loader
@@ -6,15 +5,86 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django import forms
 from django.contrib.auth.models import User, Group
-
+import os
 from .decorators import logout_required
 from .models import Estudiante
 from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout as auth_logout
-
+from django.conf import settings
 # Create your views here.
+import io
+from django.http import FileResponse, HttpResponse
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
+def generate_pdf_from_existing(request):
+    # Ruta del archivo PDF original
+    original_pdf_path = os.path.join(settings.BASE_DIR, 'documentacion', 'solicitud-permutas-2024-25.pdf')
+
+    # Verificar si el archivo existe
+    if not os.path.exists(original_pdf_path):
+        return HttpResponse("El archivo PDF original no se encuentra en la ruta especificada.", status=404)
+
+    try:
+        # Crear un buffer de bytes para el nuevo contenido
+        buffer = io.BytesIO()
+
+        # Crear un PDF con ReportLab para el nuevo contenido
+        c = canvas.Canvas(buffer, pagesize=letter)
+        
+        # Agregar contenido nuevo al PDF
+        c.drawString(148, 572, "X") #Ingeniería de Computadores
+        c.drawString(218, 572, "X") #Ingeniería del Software
+        c.drawString(288, 572, "X") #TI
+        c.drawString(358, 572, "X") #Ingeniería de la Salud
+
+        #Solicitante 1
+        #c.drawString(130, 500, "75967897")
+        c.drawString(130, 496, "1300") #Código Postal
+        c.setFont("Helvetica", 10)
+        c.drawString(254, 497, "La Línea de la Concepción") #Provincia
+        #Solicitante 2
+
+        # Terminar el PDF
+        c.showPage()
+        c.save()
+
+        # Mover el buffer al inicio
+        buffer.seek(0)
+
+        # Leer el PDF original
+        with open(original_pdf_path, 'rb') as f:
+            original_pdf = PdfReader(f)
+
+            # Leer el PDF con el nuevo contenido
+            new_pdf = PdfReader(buffer)
+
+            # Crear un nuevo PDF combinando ambos
+            output_buffer = io.BytesIO()
+            pdf_writer = PdfWriter()
+
+            # Superponer el nuevo contenido sobre la primera página del PDF original
+            original_page = original_pdf.pages[0]
+            new_page = new_pdf.pages[0]
+            original_page.merge_page(new_page)
+            pdf_writer.add_page(original_page)
+
+            # Añadir las páginas restantes del PDF original
+            for page_num in range(1, len(original_pdf.pages)):
+                page = original_pdf.pages[page_num]
+                pdf_writer.add_page(page)
+
+            # Escribir el contenido al nuevo archivo PDF
+            pdf_writer.write(output_buffer)
+            output_buffer.seek(0)
+
+        return FileResponse(output_buffer, as_attachment=True, filename='new_pdf.pdf')
+    except Exception as e:
+        return HttpResponse(f"Error al generar el PDF: {str(e)}", status=500)
+
 
 def assign_user_to_group(request, user_id, group_name):
     user = User.objects.get(id=user_id)
