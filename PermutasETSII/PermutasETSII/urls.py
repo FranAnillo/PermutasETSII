@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout,generate_pdf_from_existing
+from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout,generate_pdf_from_existing, mis_permutas,aceptar_permuta
 
     
 urlpatterns = [
@@ -34,6 +34,8 @@ urlpatterns = [
     path('logout/', logout, name='logout'),
     path('accounts/profile/', profile, name='profile'),
     path('generate-pdf/', generate_pdf_from_existing, name='generate_pdf'),
+    path('mis-permutas/', mis_permutas, name='mis_permutas'),
+    path('aceptar-permuta/<int:permuta_id>/', aceptar_permuta, name='aceptar_permuta'),
 
 ]
 if settings.DEBUG:

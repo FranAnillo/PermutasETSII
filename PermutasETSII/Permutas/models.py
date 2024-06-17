@@ -13,9 +13,10 @@ class Grado (models.Model):
 class Asignatura (models.Model):
   nombre_asignatura = models.CharField(max_length=255)
   grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
+  codigo = models.IntegerField( unique= True)
 
   def __str__(self):
-    return  f'{self.nombre}'
+    return  f'{self.nombre_asignatura}'
   
 class Estudiante(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -47,6 +48,9 @@ class Permuta(models.Model):
     grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.SET_NULL, null=True, blank=True)
     asignatura = models.ForeignKey(Asignatura, related_name='asignatura', on_delete=models.CASCADE)
     estado = models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
+    aceptada_1 = models.BooleanField()
+    aceptada_2 = models.BooleanField()
+
 
     def clean(self):
         if self.estudiante1 == self.estudiante2:

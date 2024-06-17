@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import login
 from django.template import loader
 from django.contrib import messages
@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.auth.models import User, Group
 import os
 from .decorators import logout_required
-from .models import Estudiante
+from .models import Estudiante,Permuta
 from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
@@ -21,6 +21,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 def generate_pdf_from_existing(request):
+    print(request.user.username)
     # Ruta del archivo PDF original
     original_pdf_path = os.path.join(settings.BASE_DIR, 'documentacion', 'solicitud-permutas-2024-25.pdf')
 
@@ -49,7 +50,7 @@ def generate_pdf_from_existing(request):
         c.setFont("Helvetica", 9)
         c.drawString(130, 512, "Calle Gabriel Miró 52 M") #Código Postal
         c.setFont("Helvetica", 7)
-        c.drawString(464, 512, "La Línea de la Concepción") #Código Postal
+        c.drawString(464, 512, "La Línea de la Concepción") #Población
         c.setFont("Helvetica", 12)
         c.drawString(130, 496, "11300") #Código Postal
         c.setFont("Helvetica", 10)
@@ -64,7 +65,7 @@ def generate_pdf_from_existing(request):
         c.setFont("Helvetica", 9)
         c.drawString(130, 340, "Calle Gabriel Miró 52 M") #Código Postal
         c.setFont("Helvetica", 7)
-        c.drawString(464, 340, "La Línea de la Concepción") #Código Postal
+        c.drawString(464, 340, "La Línea de la Concepción") #Población
         c.setFont("Helvetica", 12)
         c.drawString(130, 325, "11300") #Código Postal
         c.setFont("Helvetica", 10)
@@ -221,3 +222,38 @@ def change_permuta(request):
 def delete_permuta(request):
     # Tu lógica aquí
     return render(request, 'delete_permuta.html')
+
+@login_required
+def mis_permutas(request):
+    usuario = request.user
+    permutas_asociadas = sacar_permutas_user(usuario)
+    context = {
+        'permutas': permutas_asociadas
+    }
+    return render(request, 'mis_permutas.html', context)
+
+def sacar_permutas_user(user):
+    print(user)
+    return Permuta.objects.filter(estudiante1__user=user) | Permuta.objects.filter(estudiante2__user=user)
+
+@login_required
+def aceptar_permuta(request, permuta_id):
+    permuta = get_object_or_404(Permuta, id=permuta_id)
+    if request.method == 'POST':
+        usuario = request.user
+        if permuta.estudiante1.user == usuario:
+            permuta.aceptada_1=True
+        elif permuta.estudiante2.user == usuario:
+            permuta.aceptada_2=True
+
+        if permuta.aceptada_1&permuta.aceptada_2:
+            permuta.estado = 'aceptada'
+            messages.success(request, 'Permuta aceptada exitosamente.')
+        else:
+            if permuta.aceptada_1:
+                messages.success(request, f'Permuta aceptada exitosamente por tu parte debe aceptarla también {permuta.estudiante2.nombre} {permuta.estudiante2.apellido}.')
+            elif permuta.aceptada_2:
+                messages.success(request, f'Permuta aceptada exitosamente por tu parte debe aceptarla también {permuta.estudiante1.nombre} {permuta.estudiante1.apellido}.')
+        permuta.save()
+        return redirect('mis_permutas')
+    return render(request, 'aceptar_permuta.html', {'permuta': permuta})
