@@ -73,7 +73,8 @@
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-success">✔</button>
                                     </form>
-                                {% endif %}        
+                                {% endif %}
+                                    <p> Ya ha sido aceptada por tu parte.</p>    
                             {% endif %}
                             {% if user == permuta.estudiante2.user %}
                                 {% if not permuta.aceptada_2 %}
@@ -81,7 +82,8 @@
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-success">✔</button>
                                     </form>
-                                {% endif %}        
+                                {% endif %}
+                                <p> Ya ha sido aceptada por tu parte.</p>         
                             {% endif %}
                         {% endif %}</td>
                 </tr>
