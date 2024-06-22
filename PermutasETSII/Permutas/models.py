@@ -11,7 +11,7 @@ class Grado (models.Model):
     return  f'{self.nombre}'
 
 class Asignatura (models.Model):
-  nombre_asignatura = models.CharField(max_length=255)
+  nombre = models.CharField(max_length=255)
   grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
 
   def __str__(self):
