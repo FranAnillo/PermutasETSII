@@ -1,0 +1,93 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+    .table-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .centered-table {
+        border-collapse: collapse;
+        width: 90%; /* Adjust the width as needed */
+        max-width: 85%;
+        text-align: left;
+    }
+
+    .centered-table th, .centered-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center; /* Center align text in cells */
+    }
+
+    .centered-table th {
+        background-color: #f2f2f2;
+        text-align: center; /* Center align text in headers */
+    }
+
+    .centered-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .centered-table tr:hover {
+        background-color: #ddd;
+    }
+</style>
+
+    <h2>Mis Permutas</h2>
+    <div class="table-container">
+    <table class="centered-table">
+        <thead>
+            <tr>
+                <th>Estudiante solicitante</th>
+                <th>Grupo</th>
+                <th>Estudiante que acepta</th>
+                <th>Grupo</th>
+                <th>Asignatura</th>
+                <th>Estado</th>
+                <th>Aceptar permuta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for permuta in permutas %}
+                <tr>
+                    <td>{{ permuta.estudiante1.nombre }} {{ permuta.estudiante1.apellido }}</td>
+                    <td>{{ permuta.grupo1.numero_grupo }}</td>
+                    <td>{% if permuta.estudiante2 %}
+                        {{ permuta.estudiante2.nombre }} {{ permuta.estudiante2.apellido }}
+                    {% else %}
+                        N/A
+                    {% endif %}</td>
+                    <td>{% if permuta.grupo2 %}
+                        {{ permuta.grupo2.numero_grupo }}
+                    {% else %}
+                        N/A
+                    {% endif %}</td>
+                    <td>{{ permuta.asignatura.nombre_asignatura }}</td>
+                    <td>{{ permuta.estado }}</td>
+                    <td> {% if permuta.estado == 'solicitada' %}
+                            {% if user == permuta.estudiante1.user %}
+                                {% if not permuta.aceptada_1 %}
+                                    <form method="post" action="{% url 'aceptar_permuta' permuta.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">✔</button>
+                                    </form>
+                                {% endif %}
+                                    <p> Ya ha sido aceptada por tu parte.</p>    
+                            {% endif %}
+                            {% if user == permuta.estudiante2.user %}
+                                {% if not permuta.aceptada_2 %}
+                                    <form method="post" action="{% url 'aceptar_permuta' permuta.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">✔</button>
+                                    </form>
+                                {% endif %}
+                                <p> Ya ha sido aceptada por tu parte.</p>         
+                            {% endif %}
+                        {% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

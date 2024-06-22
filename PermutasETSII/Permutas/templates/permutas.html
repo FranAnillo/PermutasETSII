@@ -1,7 +1,37 @@
 {% extends 'layout.html' %}
 {% block content %}
-
-    <h1>Lista de permutas disponibles</h1>
-    <p class = "description">Bienvenido a la plataforma de permutas de la ETSII</p>
-</body>
+<h2>Todas las permutas disponibles</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Estudiante</th>
+            <th>Grupo</th>
+            <th>Estudiante</th>
+            <th>Grupo</th>
+            <th>Asignatura</th>
+            <th>Estado</th>
+            <th>Aceptar permuta</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for permuta in permutas %}
+            <tr>
+                <td>{{ permuta.estudiante1.user.nombre }} {{ permuta.estudiante1.user.apellido }}</td>
+                <td>{{ permuta.grupo1.numero_grupo }}</td>
+                <td>{% if permuta.estudiante2 %}
+                    {{ permuta.estudiante2.nombre }} {{ permuta.estudiante2.apellido }}
+                {% else %}
+                    N/A
+                {% endif %}</td>
+                <td>{% if permuta.grupo2 %}
+                    {{ permuta.grupo2.numero_grupo }}
+                {% else %}
+                    N/A
+                {% endif %}</td>
+                <td>{{ permuta.asignatura.nombre_asignatura }}</td>
+                <td>{{ permuta.estado }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock content %}
