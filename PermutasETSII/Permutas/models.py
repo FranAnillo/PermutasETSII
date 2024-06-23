@@ -16,7 +16,7 @@ class Asignatura (models.Model):
   codigo = models.IntegerField( unique= True)
 
   def __str__(self):
-    return  f'{self.nombre_asignatura}'
+    return  f'{self.nombre}'
   
 class Estudiante(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -57,5 +57,5 @@ class Permuta(models.Model):
             raise ValidationError("Estudiante 1 y Estudiante 2 deben ser diferentes")
 
     def __str__(self):
-        return f'Permuta entre {self.estudiante1.user.username} y {self.estudiante2.user.username} en {self.asignatura.nombre_asignatura}'
+        return f'Permuta entre {self.estudiante1.user.username} y {self.estudiante2.user.username} en {self.asignatura.nombre}'
    
