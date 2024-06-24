@@ -21,12 +21,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout,generate_pdf_from_existing, mis_permutas,aceptar_permuta
+from Permutas.views import custom_login, home,todasPermutas,nuevaPermutas,registro,profile,logout,generate_pdf_from_existing, mis_permutas,aceptar_permuta,asignaturas_estudiante, grupos_estudiante,permutas_all,aceptar_solicitud_permuta
 
     
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
-    path('permutas/', todasPermutas, name='todasPermutas'),
+    path('permutas/', permutas_all, name='todasPermutas'),
     path('solicitar-permuta/', nuevaPermutas, name='nuevaPermuta'),
     path('', home, name='home'),
     path('register/', registro, name='register'),
@@ -36,6 +36,9 @@ urlpatterns = [
     path('generate-pdf/', generate_pdf_from_existing, name='generate_pdf'),
     path('mis-permutas/', mis_permutas, name='mis_permutas'),
     path('aceptar-permuta/<int:permuta_id>/', aceptar_permuta, name='aceptar_permuta'),
+    path('aceptar-solicutud-permuta/<int:solicitud_permuta_id>/', aceptar_solicitud_permuta, name='aceptar_solicitud_permuta'),
+    path('mis_asignaturas/', asignaturas_estudiante, name='asignaturas_estudiante'),
+    path('mis_grupos/', grupos_estudiante, name='grupos_estudiante'),
 
 ]
 if settings.DEBUG:

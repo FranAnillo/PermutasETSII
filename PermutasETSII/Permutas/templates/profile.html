@@ -8,19 +8,22 @@
         height: 150px; /* Ajusta la altura según sea necesario */
         object-fit: cover;
         border-radius: 50%; /* Hace la imagen redonda */
-        
     }
 </style>
 
 <div class="profile-container">
     <h2>Mi Perfil</h2>
     <div class="profile-image">
-        {% if user.estudiante.image %}
+        {% if user.estudiante and user.estudiante.image %}
             <img src="{{ user.estudiante.image.url }}" alt="Profile Image" class="img-thumbnail">
         {% else %}
             <img src="{{ MEDIA_URL }}default.jpg" alt="Default Profile Image" class="img-thumbnail">
         {% endif %}
-        <p>Estudiante del {{ user.estudiante.grado }}</p>
+        {% if user.estudiante %}
+            <p>Estudiante del {{ user.estudiante.grado }}</p>
+        {% else %}
+            <p>No tienes un perfil de estudiante.</p>
+        {% endif %}
     </div>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -31,5 +34,5 @@
         <button class="button-container" type="submit" class="btn btn-primary">Actualizar Perfil</button>
     </form>
 </div>
-    
+
 {% endblock content %}

@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.auth.models import User, Group
 import os
 from .decorators import logout_required
-from .models import Estudiante,Permuta
+from .models import Estudiante,Permuta, Solicitud_Permuta
 from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
@@ -19,6 +19,7 @@ from django.http import FileResponse, HttpResponse
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from .models import Asignatura,Estudiante,Grupo
 
 def generate_pdf_from_existing(request):
     print(request.user.username)
@@ -156,21 +157,27 @@ def registro(request):
 
 @login_required
 def profile(request):
+    try:
+        estudiante = request.user.estudiante
+    except Estudiante.DoesNotExist:
+        estudiante = None
+
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        e_form = EstudianteUpdateForm(request.POST, request.FILES, instance=request.user.estudiante)
+        e_form = EstudianteUpdateForm(request.POST, request.FILES, instance=estudiante)
+        
         if u_form.is_valid() and e_form.is_valid():
             u_form.save()
             e_form.save()
-            messages.success(request, f'¡Tu perfil ha sido actualizado!')
+            messages.success(request, f'Tu cuenta ha sido actualizada!')
             return redirect('profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
-        e_form = EstudianteUpdateForm(instance=request.user.estudiante)
+        e_form = EstudianteUpdateForm(instance=estudiante)
 
     context = {
         'u_form': u_form,
-        'e_form': e_form
+        'e_form': e_form,
     }
 
     return render(request, 'profile.html', context)
@@ -187,7 +194,7 @@ def custom_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('profile')
+                return redirect('home')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
@@ -257,3 +264,60 @@ def aceptar_permuta(request, permuta_id):
         permuta.save()
         return redirect('mis_permutas')
     return render(request, 'aceptar_permuta.html', {'permuta': permuta})
+    
+@login_required
+def aceptar_solicitud_permuta(request, solicitud_permuta_id):
+    solicitud = get_object_or_404(Solicitud_Permuta, id=solicitud_permuta_id)
+    estudiante=request.user.estudiante
+    grupo=Grupo.objects.get(asignatura=solicitud.asignatura, estudiante=estudiante)
+    permuta = Permuta.objects.create(estudiante1 = solicitud.estudiante1, grupo1= solicitud.grupo1, asignatura= solicitud.asignatura,aceptada_1=True,aceptada_2=True,estado='solicitada', estudiante2=estudiante,grupo2= grupo)
+    permuta.save()
+    messages.success(request, 'Permuta aceptada exitosamente y permuta creada.')
+    return render(request, 'home.html')
+    
+
+@login_required
+def asignaturas_estudiante(request):
+    estudiante = Estudiante.objects.get(user=request.user)
+    asignaturas = Asignatura.objects.filter(grupo__estudiante=estudiante).distinct()
+
+    context = {
+        'asignaturas': asignaturas,
+    }
+
+    return render(request, 'asignaturas_estudiante.html', context)
+
+
+@login_required
+def asignaturas_estudiante(request):
+    estudiante = Estudiante.objects.get(user=request.user)
+    asignaturas = Grupo.objects.filter(grupo__estudiante=estudiante).distinct().objects
+
+    context = {
+        'asignaturas': asignaturas,
+    }
+
+    return render(request, 'mis_asignaturas.html', context)
+    
+@login_required
+def grupos_estudiante(request):
+    estudiante = Estudiante.objects.get(user=request.user)
+    grupos = Grupo.objects.filter(estudiante=estudiante).distinct()
+
+    context = {
+        'grupos': grupos,
+    }
+
+    return render(request, 'grupos_estudiante.html', context)
+
+@login_required
+def permutas_all(request):
+    usuario = request.user
+    permutas_asociadas = sacar_permutas_not_user(usuario)
+    context = {
+        'permutas': permutas_asociadas
+    }
+    return render(request, 'permutas.html', context)
+
+def sacar_permutas_not_user(user):
+    return Solicitud_Permuta.objects.exclude(estudiante1__user=user)

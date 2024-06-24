@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+<style>
+    .lista-asignatura{
+        color: black;
+    }
+</style>
+<h2>Mis Asignaturas Matriculadas</h2>
+<ul>
+    {% for grupo in grupos %}
+        <li><div type="lista-asignatura">Asignatura: {{ grupo.asignatura.nombre }} grupo de {{ grupo.tipo_grupo }} - {{ grupo.numero_grupo }}</div></li>
+    {% endfor %}
+</ul>
+{% endblock content %}

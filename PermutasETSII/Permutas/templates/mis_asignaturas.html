@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Mis Asignaturas</h2>
+<ul>
+    {% for asignatura in asignaturas %}
+        <li>{{ asignatura.nombre_asignatura }}</li>
+    {% endfor %}
+</ul>
+{% endblock content %}

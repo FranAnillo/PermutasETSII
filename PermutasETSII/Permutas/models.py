@@ -31,6 +31,12 @@ class Estudiante(models.Model):
     poblacion = models.CharField(max_length=50)
     telefono = models.CharField(max_length=15, validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="El número de teléfono debe ingresarse en el formato: '+999999999'. Hasta 15 dígitos permitidos.")])  # Nuevo campo de teléfono
     
+    def obtener_asignaturas(self):
+      return Asignatura.objects.filter(grupo__estudiante=self).distinct()
+    
+    def obtener_grupos(self):
+        return Grupo.objects.filter(estudiante=self).distinct()
+    
     def __str__(self):
         return f'Perfil de {self.user.username}'
 
@@ -38,14 +44,40 @@ class Grupo (models.Model):
   numero_grupo = models.IntegerField()
   limite_estudiantes = models.IntegerField()
   tipo_grupo=models.CharField(max_length=10, choices=[('teoria', 'Teoria'), ('practica', 'Practica')])
-  estudiante = models.ManyToManyField(Estudiante)
+  estudiante = models.ManyToManyField(Estudiante, blank=True)
   asignatura= models.ForeignKey(Asignatura, on_delete=models.CASCADE)
+
+
+class Solicitud_Permuta(models.Model):
+    estudiante1 = models.ForeignKey('Estudiante', related_name='estudiante_solicitud', on_delete=models.CASCADE)
+    grupo1 = models.ForeignKey('Grupo', related_name='grupo_solicitud', on_delete=models.CASCADE)
+    grupo_deseado = models.ManyToManyField('Grupo')
+    asignatura = models.ForeignKey('Asignatura', related_name='asignatura_solicitada', on_delete=models.CASCADE)
+
+    def clean(self):
+        # Verificar que el estudiante pertenece al grupo
+        if not self.grupo1.estudiante.filter(id=self.estudiante1.id).exists():
+            raise ValidationError('El estudiante no pertenece al grupo seleccionado.')
+        
+    def save(self, *args, **kwargs):
+        # Call the parent save method to ensure the instance is saved to the database
+        super().save(*args, **kwargs)
+        
+        # Now we can safely perform the many-to-many check
+        if self.grupo1 in self.grupo_deseado.all():
+
+            raise ValidationError('No puedes solicitar una permuta al grupo al que perteneces.')
+        
+        # Save again to apply changes if no v
+
+    def __str__(self):
+        return f'Solicitud de {self.estudiante1.user.username} para cambiar de {self.grupo1.numero_grupo} a {[g.numero_grupo for g in self.grupo_deseado.all()]}'
 
 class Permuta(models.Model):
     estudiante1 = models.ForeignKey(Estudiante, related_name='permuta_estudiante1', on_delete=models.CASCADE)
-    estudiante2 = models.ForeignKey(Estudiante, related_name='permuta_estudiante2', on_delete=models.SET_NULL, null=True, blank=True)
+    estudiante2 = models.ForeignKey(Estudiante, related_name='permuta_estudiante2', on_delete=models.CASCADE)
     grupo1 = models.ForeignKey(Grupo, related_name='permuta_grupo1', on_delete=models.CASCADE)
-    grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.SET_NULL, null=True, blank=True)
+    grupo2 = models.ForeignKey(Grupo, related_name='permuta_grupo2', on_delete=models.CASCADE)
     asignatura = models.ForeignKey(Asignatura, related_name='asignatura', on_delete=models.CASCADE)
     estado = models.CharField(max_length=10, choices=[('solicitada', 'Solicitada'), ('aceptada', 'Aceptada'), ('rechazada', 'Rechazada')])
     aceptada_1 = models.BooleanField()
