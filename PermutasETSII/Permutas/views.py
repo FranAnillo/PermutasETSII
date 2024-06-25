@@ -1,31 +1,37 @@
-from django.shortcuts import render, redirect,get_object_or_404
-from django.contrib.auth import login
+# Django imports
+from django import forms
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.decorators import login_required, permission_required
-from django import forms
-from django.contrib.auth.models import User, Group
-import os
-from .decorators import logout_required
-from .models import Estudiante,Permuta, Solicitud_Permuta
-from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, authenticate
-from django.contrib.auth import logout as auth_logout
-from django.conf import settings
-# Create your views here.
-import io
+from django.contrib.auth.models import User, Group
 from django.http import FileResponse, HttpResponse
+from django.conf import settings
+from django.db.models import Q
+
+# Project-specific imports
+from .decorators import logout_required
+from .models import Estudiante, Permuta, Solicitud_Permuta, Asignatura, Grupo
+from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
+
+# Third-party imports
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from .models import Asignatura,Estudiante,Grupo
 
-def generate_pdf_from_existing(request):
-    print(request.user.username)
+# Standard library imports
+import os
+import io
+
+def generate_pdf_from_existing(request,estudiante_id):
     # Ruta del archivo PDF original
+    estudiante1= request.user.estudiante
+    estudiante2 = get_object_or_404(Estudiante, id=estudiante_id)
     original_pdf_path = os.path.join(settings.BASE_DIR, 'documentacion', 'solicitud-permutas-2024-25.pdf')
-
+    permutas = sacar_permutas_two_users(user1=estudiante1.user,user2=estudiante2.user)
+    print(permutas)
     # Verificar si el archivo existe
     if not os.path.exists(original_pdf_path):
         return HttpResponse("El archivo PDF original no se encuentra en la ruta especificada.", status=404)
@@ -33,46 +39,70 @@ def generate_pdf_from_existing(request):
     try:
         # Crear un buffer de bytes para el nuevo contenido
         buffer = io.BytesIO()
-
+        
         # Crear un PDF con ReportLab para el nuevo contenido
         c = canvas.Canvas(buffer, pagesize=letter)
-        
+        print(request.user.estudiante.grado)
         # Agregar contenido nuevo al PDF
-        c.drawString(148, 572, "X") #Ingeniería de Computadores
-        c.drawString(218, 572, "X") #Ingeniería del Software
-        c.drawString(288, 572, "X") #TI
-        c.drawString(358, 572, "X") #Ingeniería de la Salud
+        if estudiante1.grado.nombre == 'Grado en Ingeniería Informática - Ingeniería de Computadores':
+            c.drawString(148, 572, "X") #Ingeniería de Computadores
+        elif estudiante1.grado.nombre == 'Grado en Ingeniería Informática - Ingeniería del Software':
+            c.drawString(218, 572, "X") #Ingeniería del Software
+        elif estudiante1.grado.nombre == 'Grado en Ingeniería Informática - Tecnologías de la Información':
+            c.drawString(288, 572, "X") #TI
+        elif estudiante1.grado.nombre == 'Grado en Ingeniería de la Salud':
+            c.drawString(358, 572, "X") #Ingeniería de la Salud
 
         #Solicitante 1
-        c.drawString(87, 526, "75967897")#DNI-Número
-        c.drawString(220, 526, "R")#DNI-Letra
+        c.drawString(87, 526, estudiante1.dni[:-1])#DNI-Número
+        c.drawString(220, 526, estudiante1.dni[-1])#DNI-Letra
         c.setFont("Helvetica", 10)
-        c.drawString(300, 526, "Francisco José Anillo Carrasco")#Nombre
+        c.drawString(300, 526, estudiante1.nombre +' '+estudiante1.apellido )#Nombre
         c.setFont("Helvetica", 9)
-        c.drawString(130, 512, "Calle Gabriel Miró 52 M") #Código Postal
+        c.drawString(130, 512, estudiante1.domicilio) #Código Postal
         c.setFont("Helvetica", 7)
-        c.drawString(464, 512, "La Línea de la Concepción") #Población
+        c.drawString(464, 512, estudiante1.poblacion) #Población
         c.setFont("Helvetica", 12)
-        c.drawString(130, 496, "11300") #Código Postal
+        c.drawString(130, 496, estudiante1.codigo_postal) #Código Postal
         c.setFont("Helvetica", 10)
-        c.drawString(254, 497, "Cádiz") #Provincia
-        c.drawString(464, 497, "667525025") #Teléfono
+        c.drawString(254, 497, estudiante1.provincia) #Provincia
+        c.drawString(464, 497, estudiante1.telefono) #Teléfono
         
         #Solicitante 2
-        c.drawString(87, 355, "75967897")#DNI-Número
-        c.drawString(220, 355, "R")#DNI-Letra
+        c.drawString(87, 355, estudiante2.dni[:-1])#DNI-Número
+        c.drawString(220, 355, estudiante2.dni[-1])#DNI-Letra
         c.setFont("Helvetica", 10)
-        c.drawString(300, 355, "Francisco José Anillo Carrasco")#Nombre
+        c.drawString(300, 355, estudiante2.nombre + ' '+ estudiante2.apellido)#Nombre
         c.setFont("Helvetica", 9)
-        c.drawString(130, 340, "Calle Gabriel Miró 52 M") #Código Postal
+        c.drawString(130, 340, estudiante2.domicilio) #Código Postal
         c.setFont("Helvetica", 7)
-        c.drawString(464, 340, "La Línea de la Concepción") #Población
+        c.drawString(464, 340, estudiante2.poblacion) #Población
         c.setFont("Helvetica", 12)
-        c.drawString(130, 325, "11300") #Código Postal
+        c.drawString(130, 325, estudiante2.codigo_postal) #Código Postal
         c.setFont("Helvetica", 10)
-        c.drawString(254, 326, "Cádiz") #Provincia
-        c.drawString(464, 326, "667525025") #Teléfono
+        c.drawString(254, 326, estudiante2.provincia) #Provincia
+        c.drawString(464, 326, estudiante2.telefono) #Teléfono
+        
+        x = 50
+        y = 463
+        y2=290
+        i = 1
 
+        for permuta in permutas:
+            c.drawString(x, y, permuta.asignatura.codigo)#CÓDIGO
+            c.drawString(x+65, y, permuta.asignatura.nombre) #ASIGNATURA
+            c.drawString(x, y2, permuta.asignatura.codigo)#CÓDIGO
+            c.drawString(x+65, y2, permuta.asignatura.nombre) #ASIGNATURA
+            y2= y2-15
+            y= y-15
+            i=i+1
+            if i == 5:
+                x= 320
+                y = 463
+                y2=290
+            elif i==10:
+                break
+                
         # Terminar el PDF
         c.showPage()
         c.save()
@@ -105,8 +135,8 @@ def generate_pdf_from_existing(request):
             # Escribir el contenido al nuevo archivo PDF
             pdf_writer.write(output_buffer)
             output_buffer.seek(0)
-
-        return FileResponse(output_buffer, as_attachment=True, filename='new_pdf.pdf')
+            nombre_pdf = 'Permuta_'+estudiante1.nombre+'_'+estudiante1.apellido+'_'+estudiante1.nombre+'_'+estudiante1.apellido+'.pdf'
+        return FileResponse(output_buffer, as_attachment=True, filename=nombre_pdf)
     except Exception as e:
         return HttpResponse(f"Error al generar el PDF: {str(e)}", status=500)
 
@@ -321,3 +351,10 @@ def permutas_all(request):
 
 def sacar_permutas_not_user(user):
     return Solicitud_Permuta.objects.exclude(estudiante1__user=user)
+
+def sacar_permutas_two_users(user1,user2):
+    permutas_solicitante = Permuta.objects.filter(
+        Q(estudiante1__user=user1, estudiante2__user=user2) | 
+        Q(estudiante1__user=user2, estudiante2__user=user1)
+    )
+    return permutas_solicitante
