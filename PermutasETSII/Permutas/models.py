@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-
+from django.db.models import Count
 
 class Grado (models.Model):
   nombre= models.CharField(max_length=255, unique=True)
@@ -13,6 +13,7 @@ class Grado (models.Model):
 class Asignatura (models.Model):
   nombre = models.CharField(max_length=255)
   grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
+  curso = models.CharField(max_length=10, choices=[('primero', 'Primero'), ('segundo', 'Segundo'), ('tercero', 'Tercero'), ('cuarto', 'Cuarto')])
   codigo = models.CharField(unique= True ,max_length=7)
 
   def __str__(self):
@@ -47,7 +48,13 @@ class Grupo (models.Model):
   tipo_grupo=models.CharField(max_length=10, choices=[('teoria', 'Teoria'), ('practica', 'Practica')])
   estudiante = models.ManyToManyField(Estudiante, blank=True)
   asignatura= models.ForeignKey(Asignatura, on_delete=models.CASCADE)
-
+  proyecto_docente = models.FileField(upload_to='pdfs/', blank=True, null=True)
+  
+  def grupos_no_matriculados(self, estudiante, asignatura):
+    return Grupo.objects.filter(asignatura=asignatura).exclude(estudiante=estudiante)
+  
+  def __str__(self):
+    return f'Grupo {self.numero_grupo} de {self.asignatura.nombre}'
 
 class Solicitud_Permuta(models.Model):
     estudiante1 = models.ForeignKey('Estudiante', related_name='estudiante_solicitud', on_delete=models.CASCADE)
@@ -73,9 +80,6 @@ class Solicitud_Permuta(models.Model):
 
     def __str__(self):
         return f'Solicitud de {self.estudiante1.user.username} para cambiar de {self.grupo1.numero_grupo} a {[g.numero_grupo for g in self.grupo_deseado.all()]}'
-
-from django.core.exceptions import ValidationError
-from django.db.models import Count
 
 class Permuta(models.Model):
     estudiante1 = models.ForeignKey(Estudiante, related_name='permuta_estudiante1', on_delete=models.CASCADE)

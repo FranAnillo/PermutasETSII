@@ -1,0 +1,62 @@
+<!-- templates/crear_solicitud_permuta.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .table-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .centered-table {
+        border-collapse: collapse;
+        width: 90%; /* Adjust the width as needed */
+        max-width: 85%;
+        text-align: left;
+    }
+
+    .centered-table th, .centered-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center; /* Center align text in cells */
+    }
+
+    .centered-table th {
+        background-color: #f2f2f2;
+        text-align: center; /* Center align text in headers */
+    }
+
+    .centered-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .centered-table tr:hover {
+        background-color: #ddd;
+    }
+</style>
+
+<h2>Crear Solicitud de Permuta</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="table-container">
+        <table class="centered-table">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Grupos Disponibles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asignatura in estudiante.obtener_asignaturas %}
+                <tr>
+                    <td>{{asignatura.nombre}}</td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="submit">Enviar Solicitud</button>
+</form>
+{% endblock content %}

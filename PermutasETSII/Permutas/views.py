@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout as auth_logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.http import FileResponse, HttpResponse
@@ -14,7 +14,7 @@ from django.db.models import Q
 # Project-specific imports
 from .decorators import logout_required
 from .models import Estudiante, Permuta, Solicitud_Permuta, Asignatura, Grupo
-from .forms import CustomAuthenticationForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm
+from .forms import AsignarAsignaturasForm, CustomAuthenticationForm, ProyectoDocenteForm, SolicitudPermutaForm, StudentRegisterForm, EstudianteUpdateForm, UserUpdateForm,GrupoForm
 
 # Third-party imports
 from PyPDF2 import PdfReader, PdfWriter
@@ -24,6 +24,10 @@ from reportlab.lib.pagesizes import letter
 # Standard library imports
 import os
 import io
+def is_delegacion_or_admin(user):
+    return user.is_superuser or user.groups.filter(name='delegación').exists()
+def is_delegacion(user):
+    return user.groups.filter(name='delegación').exists()
 
 def generate_pdf_from_existing(request,estudiante_id):
     # Ruta del archivo PDF original
@@ -358,3 +362,84 @@ def sacar_permutas_two_users(user1,user2):
         Q(estudiante1__user=user2, estudiante2__user=user1)
     )
     return permutas_solicitante
+
+
+def subir_grupo(request):
+    if request.method == 'POST':
+        form = GrupoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_grupos')
+    else:
+        form = GrupoForm()
+    return render(request, 'subir_grupo.html', {'form': form})
+
+@login_required
+@user_passes_test(is_delegacion_or_admin)
+def actualizar_proyecto_docente(request, grupo_id):
+    grupo = get_object_or_404(Grupo, id=grupo_id)
+    if request.method == 'POST':
+        form = ProyectoDocenteForm(request.POST, request.FILES, instance=grupo)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_grupos')  # O la vista a la que desees redirigir
+    else:
+        form = ProyectoDocenteForm(instance=grupo)
+    return render(request, 'actualizar_proyecto_docente.html', {'form': form, 'grupo': grupo})
+
+@login_required
+def asignar_asignaturas(request):
+    estudiante = get_object_or_404(Estudiante, user=request.user)
+    if request.method == 'POST':
+        form = AsignarAsignaturasForm(request.POST, instance=estudiante, estudiante=estudiante)
+        if form.is_valid():
+            form.save()
+            return redirect('detalle_estudiante')  # Redirigir a una vista adecuada después de guardar
+    else:
+        form = AsignarAsignaturasForm(instance=estudiante, estudiante=estudiante)
+    return render(request, 'asignar_asignaturas.html', {'form': form, 'estudiante': estudiante})
+
+# views.py
+@login_required
+def detalle_estudiante(request):
+    estudiante = get_object_or_404(Estudiante, user=request.user)
+    return render(request, 'detalle_estudiante.html', {'estudiante': estudiante})
+
+# views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import SolicitudPermutaForm
+from .models import Estudiante, Solicitud_Permuta
+
+# views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import SolicitudPermutaForm
+from .models import Estudiante, Solicitud_Permuta
+
+# views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import SolicitudPermutaForm
+from .models import Estudiante, Solicitud_Permuta, Grupo
+
+@login_required
+def crear_solicitud_permuta(request):
+    estudiante = get_object_or_404(Estudiante, user=request.user)
+    if request.method == 'POST':
+        form = SolicitudPermutaForm(request.POST, estudiante=estudiante)
+        if form.is_valid():
+            for asignatura in estudiante.obtener_asignaturas():
+                grupo_deseado = form.cleaned_data.get(f'grupo_deseado_{asignatura.id}')
+                if grupo_deseado:
+                    solicitud_permuta = Solicitud_Permuta(
+                        estudiante1=estudiante,
+                        grupo1=estudiante.grupo_set.filter(asignatura=asignatura).first(),
+                        asignatura=asignatura
+                    )
+                    solicitud_permuta.save()
+                    solicitud_permuta.grupo_deseado.add(grupo_deseado)
+            return redirect('detalle_estudiante')  # Redirect to a suitable view after saving
+    else:
+        form = SolicitudPermutaForm(estudiante=estudiante)
+    return render(request, 'crear_solicitud_permuta.html', {'form': form, 'estudiante': estudiante})

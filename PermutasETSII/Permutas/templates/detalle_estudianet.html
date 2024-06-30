@@ -1,0 +1,13 @@
+<!-- templates/detalle_estudiante.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Detalles de {{ estudiante.nombre }}</h2>
+<p>Asignaturas:</p>
+<ul>
+    {% for asignatura in estudiante.asignaturas.all %}
+    <li>{{ asignatura.nombre }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'asignar_asignaturas' %}">Editar Asignaturas</a>
+{% endblock content %}

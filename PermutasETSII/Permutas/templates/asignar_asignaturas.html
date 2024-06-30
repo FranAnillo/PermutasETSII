@@ -1,0 +1,28 @@
+<!-- templates/asignar_asignaturas.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+
+    button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #3E58AA;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #2e4371;
+    }
+</style>
+<h2>Asignarme asignaturas</h2>
+<form class="form-container" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Asignar</button>
+</form>
+{% endblock content %}

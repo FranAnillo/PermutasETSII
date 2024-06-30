@@ -1,0 +1,39 @@
+<!-- templates/actualizar_proyecto_docente.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .form-container {
+        text-align: center;
+    }
+
+    .form-container form {
+        display: inline-block;
+        text-align: left;
+    }
+
+    .form-container button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #3E58AA;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #2e4371;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Actualizar Proyecto Docente del Grupo {{ grupo.numero_grupo }} de la Asignatura: {{ grupo.asignatura.nombre }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Actualizar</button>
+    </form>
+</div>
+{% endblock content %}
