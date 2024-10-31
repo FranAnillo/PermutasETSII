@@ -344,17 +344,20 @@ def grupos_estudiante(request):
 
     return render(request, 'grupos_estudiante.html', context)
 
-@login_required
 def permutas_all(request):
     usuario = request.user
-    permutas_asociadas = sacar_permutas_not_user(usuario)
+    print(usuario)
+    if usuario is not None:
+        permutas_asociadas = sacar_permutas_not_user(usuario)
+    else :
+        permutas_asociadas= Solicitud_Permuta.objects.all()
     context = {
         'permutas': permutas_asociadas
     }
     return render(request, 'permutas.html', context)
 
 def sacar_permutas_not_user(user):
-    return Solicitud_Permuta.objects.exclude(estudiante1__user=user)
+    return Solicitud_Permuta.objects.exclude(estudiante__user=user)
 
 def sacar_permutas_two_users(user1,user2):
     permutas_solicitante = Permuta.objects.filter(
@@ -423,23 +426,51 @@ from django.contrib.auth.decorators import login_required
 from .forms import SolicitudPermutaForm
 from .models import Estudiante, Solicitud_Permuta, Grupo
 
-@login_required
+from django.shortcuts import render, redirect
+from .forms import SolicitudPermutaForm
+
+from django.shortcuts import render, redirect
+from django.core.exceptions import ValidationError
+from .forms import SolicitudPermutaForm
+
+from django.shortcuts import render, redirect
+from django.core.exceptions import ValidationError
+from .forms import SolicitudPermutaForm
+
+from django.shortcuts import render, redirect
+from .forms import SolicitudPermutaForm
+from .models import Estudiante, Solicitud_Permuta
+
 def crear_solicitud_permuta(request):
-    estudiante = get_object_or_404(Estudiante, user=request.user)
+    estudiante = request.user.estudiante
+    grupos_actuales = {}
+
     if request.method == 'POST':
         form = SolicitudPermutaForm(request.POST, estudiante=estudiante)
+        print("Datos del formulario (POST):", request.POST)  # Imprimir datos del formulario
         if form.is_valid():
-            for asignatura in estudiante.obtener_asignaturas():
-                grupo_deseado = form.cleaned_data.get(f'grupo_deseado_{asignatura.id}')
-                if grupo_deseado:
-                    solicitud_permuta = Solicitud_Permuta(
-                        estudiante1=estudiante,
-                        grupo1=estudiante.grupo_set.filter(asignatura=asignatura).first(),
-                        asignatura=asignatura
-                    )
-                    solicitud_permuta.save()
-                    solicitud_permuta.grupo_deseado.add(grupo_deseado)
-            return redirect('detalle_estudiante')  # Redirect to a suitable view after saving
+            try:
+                solicitud = form.save(commit=False)
+                solicitud.estudiante = estudiante
+                solicitud.grupo_actual = estudiante.grupo_matriculado(solicitud.asignatura)
+                solicitud.save()
+
+                # Guardar los grupos deseados
+                for asignatura in estudiante.obtener_asignaturas():
+                    field_name = f'grupos_deseados_{asignatura.id}'
+                    if field_name in form.cleaned_data:
+                        solicitud.grupos_deseados.add(*form.cleaned_data[field_name])
+
+                return redirect('success_url')  # Cambia 'success_url' a la URL correcta
+            except ValueError as e:
+                print("Error al guardar el formulario:", e)
+                form.add_error(None, e)
+        else:
+            print("Errores del formulario:", form.errors)
     else:
         form = SolicitudPermutaForm(estudiante=estudiante)
-    return render(request, 'crear_solicitud_permuta.html', {'form': form, 'estudiante': estudiante})
+        for asignatura in estudiante.obtener_asignaturas():
+            grupos_actuales[asignatura.id] = estudiante.grupo_matriculado(asignatura)
+        print("Datos del formulario (GET):", form)  # Imprimir datos del formulario en el GET
+
+    return render(request, 'crear_solicitud_permuta.html', {'form': form, 'grupos_actuales': grupos_actuales})  # Cambia 'crear_solicitud_permuta.html' al nombre correcto de tu plantilla

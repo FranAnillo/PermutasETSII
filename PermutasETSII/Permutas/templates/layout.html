@@ -84,7 +84,7 @@
             <li><a class="home" href="/">Home</a></li>
             <li><a class="permutas" href="/permutas">Permutas</a></li>
             {% if user.is_authenticated %}
-                <li><a class="nueva-permuta" href="/solicitar-permuta">Crear permuta</a></li>
+                <li><a class="nueva-permuta" href="/crear-permuta">Crear permuta</a></li>
                 <li><a class="profile" href="{% url 'profile' %}">Mi Perfil</a></li>
                 <li><a class="mis-permutas" href="/mis-permutas">Mis permutas</a></li>
                 <li class="right" ><a href="{% url 'logout' %}">Cerrar sesión</a></li>

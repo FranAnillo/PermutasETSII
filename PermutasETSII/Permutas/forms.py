@@ -68,29 +68,39 @@ class AsignarAsignaturasForm(forms.ModelForm):
         if estudiante:
             self.fields['asignaturas'].queryset = Asignatura.objects.filter(grado=estudiante.grado)
 
-
-
-# forms.py
-from django import forms
-from .models import Solicitud_Permuta, Grupo, Asignatura
-
 class SolicitudPermutaForm(forms.ModelForm):
     class Meta:
         model = Solicitud_Permuta
-        fields = []
+        fields = []  # No incluir 'grupo_actual' para que no se muestre en el formulario
 
     def __init__(self, *args, **kwargs):
-        estudiante = kwargs.pop('estudiante', None)
+        self.estudiante = kwargs.pop('estudiante', None)
         super(SolicitudPermutaForm, self).__init__(*args, **kwargs)
-        if estudiante:
-            # Generate dropdown fields for each asignatura's grupos_no_matriculados
-            for asignatura in estudiante.obtener_asignaturas():
-                grupos = Grupo.grupos_no_matriculados(Grupo, estudiante, asignatura)
+        if self.estudiante:
+            # Genera campos desplegables para los grupos no matriculados de cada asignatura
+            for asignatura in self.estudiante.obtener_asignaturas():
+                grupos = Grupo.grupos_no_matriculados(self.estudiante, asignatura)
                 if grupos.exists():
-                    field_name = f'grupo_deseado_{asignatura.id}'
-                    self.fields[field_name] = forms.ModelChoiceField(
+                    field_name = f'grupos_deseados_{asignatura.id}'
+                    self.fields[field_name] = forms.ModelMultipleChoiceField(
                         queryset=grupos,
                         required=False,
                         label=asignatura.nombre,
-                        empty_label="Seleccione un grupo"
+                        widget=forms.CheckboxSelectMultiple  # Usa checkboxes para la selección múltiple
                     )
+
+    def save(self, commit=True):
+        instance = super(SolicitudPermutaForm, self).save(commit=False)
+        grupo_actual = self.estudiante.grupo_matriculado(instance.asignatura)
+        print(grupo_actual)
+        instance.grupo_actual = grupo_actual
+        # Obtener el grupo matriculado del estudiante para la asignatura específica
+        if grupo_actual is None:
+            raise ValueError(f"El estudiante {self.estudiante} no está matriculado en ningún grupo para la asignatura {instance.asignatura}")
+        print(f"Instancia de Solicitud_Permuta: {instance}, Grupo Actual: {instance.grupo_actual}")  # Agrega un print para depuración
+        if commit:
+            instance.save()
+            self.save_m2m()  # Guardar la relación muchos-a-muchos si es necesario
+        return instance
+
+

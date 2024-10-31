@@ -41,45 +41,50 @@ class Estudiante(models.Model):
     
     def __str__(self):
         return f'Perfil de {self.user.username}'
+    
+    def grupo_matriculado(self, asignatura):
+        grupo = Grupo.objects.filter(asignatura=asignatura, estudiante=self).first()
+        print(f"Estudiante: {self}, Asignatura: {asignatura}, Grupo Matriculado: {grupo}")  # Agrega un print para depuración
+        return grupo
 
-class Grupo (models.Model):
-  numero_grupo = models.IntegerField()
-  limite_estudiantes = models.IntegerField()
-  tipo_grupo=models.CharField(max_length=10, choices=[('teoria', 'Teoria'), ('practica', 'Practica')])
-  estudiante = models.ManyToManyField(Estudiante, blank=True)
-  asignatura= models.ForeignKey(Asignatura, on_delete=models.CASCADE)
-  proyecto_docente = models.FileField(upload_to='pdfs/', blank=True, null=True)
+
+class Grupo(models.Model):
+    numero_grupo = models.IntegerField()
+    limite_estudiantes = models.IntegerField()
+    tipo_grupo = models.CharField(max_length=10, choices=[('teoria', 'Teoria'), ('practica', 'Practica')])
+    estudiante = models.ManyToManyField(Estudiante, blank=True)
+    asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
+    proyecto_docente = models.FileField(upload_to='pdfs/', blank=True, null=True)
   
-  def grupos_no_matriculados(self, estudiante, asignatura):
-    return Grupo.objects.filter(asignatura=asignatura).exclude(estudiante=estudiante)
+    @classmethod
+    def grupo_matriculados(cls, estudiante, asignatura):
+        return cls.objects.filter(asignatura=asignatura, estudiante=estudiante)
   
-  def __str__(self):
-    return f'Grupo {self.numero_grupo} de {self.asignatura.nombre}'
+    @classmethod
+    def grupos_no_matriculados(cls, estudiante, asignatura):
+        return cls.objects.filter(asignatura=asignatura).exclude(estudiante=estudiante)
+  
+    def __str__(self):
+        return f'Grupo {self.numero_grupo} de {self.asignatura.nombre}'
+
 
 class Solicitud_Permuta(models.Model):
-    estudiante1 = models.ForeignKey('Estudiante', related_name='estudiante_solicitud', on_delete=models.CASCADE)
-    grupo1 = models.ForeignKey('Grupo', related_name='grupo_solicitud', on_delete=models.CASCADE)
-    grupo_deseado = models.ManyToManyField('Grupo')
-    asignatura = models.ForeignKey('Asignatura', related_name='asignatura_solicitada', on_delete=models.CASCADE)
+    estudiante = models.ForeignKey(Estudiante, related_name='solicitudes_permuta', on_delete=models.CASCADE)
+    grupos_deseados = models.ManyToManyField(Grupo, related_name='deseos_permuta', blank=True)
+    asignatura = models.ForeignKey(Asignatura, related_name='solicitudes_permuta', on_delete=models.CASCADE)
+    grupo_actual = models.ForeignKey(Grupo, related_name='solicitudes_permuta', on_delete=models.CASCADE)
 
     def clean(self):
-        # Verificar que el estudiante pertenece al grupo
-        if not self.grupo1.estudiante.filter(id=self.estudiante1.id).exists():
+        # Verificar que el estudiante pertenece al grupo actual
+        if not self.grupo_actual.estudiante.filter(id=self.estudiante.id).exists():
             raise ValidationError('El estudiante no pertenece al grupo seleccionado.')
         
-    def save(self, *args, **kwargs):
-        # Call the parent save method to ensure the instance is saved to the database
-        super().save(*args, **kwargs)
-        
-        # Now we can safely perform the many-to-many check
-        if self.grupo1 in self.grupo_deseado.all():
-
+        # Verificar que el grupo actual no esté en los grupos deseados
+        if self.grupo_actual in self.grupos_deseados.all():
             raise ValidationError('No puedes solicitar una permuta al grupo al que perteneces.')
         
-        # Save again to apply changes if no v
-
     def __str__(self):
-        return f'Solicitud de {self.estudiante1.user.username} para cambiar de {self.grupo1.numero_grupo} a {[g.numero_grupo for g in self.grupo_deseado.all()]}'
+        return f'Solicitud de {self.estudiante.user.username} para cambiar de {self.grupo_actual.numero_grupo} a {[g.numero_grupo for g in self.grupos_deseados.all()]}'
 
 class Permuta(models.Model):
     estudiante1 = models.ForeignKey(Estudiante, related_name='permuta_estudiante1', on_delete=models.CASCADE)

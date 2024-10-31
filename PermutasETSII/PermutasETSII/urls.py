@@ -42,7 +42,7 @@ urlpatterns = [
     path('crear-grupo/', subir_grupo, name='subir_grupo'),
     path('grupo/<int:grupo_id>/actualizar-proyecto-docente/', actualizar_proyecto_docente, name='actualizar_proyecto_docente'),
     path('asignar-asignaturas/', asignar_asignaturas, name='asignar_asignaturas'),
-    path('solicitar-permuta/', crear_solicitud_permuta, name='crear_solicitud_permuta'),
+    path('crear-permuta/', crear_solicitud_permuta, name='crear_solicitud_permuta'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

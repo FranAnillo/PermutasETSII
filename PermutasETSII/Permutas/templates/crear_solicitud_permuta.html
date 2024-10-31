@@ -36,27 +36,50 @@
     }
 </style>
 
-<h2>Crear Solicitud de Permuta</h2>
-<form method="post">
-    {% csrf_token %}
-    <div class="table-container">
+<div class="description">
+    <h1>Solicitud de Permuta</h1>
+</div>
+<div class="table-container">
+    <form method="post">
+        {% csrf_token %}
         <table class="centered-table">
             <thead>
                 <tr>
                     <th>Asignatura</th>
-                    <th>Grupos Disponibles</th>
+                    <th>Grupos Deseados</th>
+                    <th>Grupo actual</th>
+                    <th>Solicitar</th>
                 </tr>
             </thead>
             <tbody>
-                {% for asignatura in estudiante.obtener_asignaturas %}
+                {% for field in form %}
                 <tr>
-                    <td>{{asignatura.nombre}}</td>
+                     <td>{{ field.label }}</td>
                     
+                    <td>
+                        {% for checkbox in field %}
+                            <div>{{ checkbox }}</div>
+                        {% endfor %}
+                    </td>
+                    <td>                    </td>
+                    <td>
+                        <div >
+                            <button class="button-container" type="submit">Enviar Solicitud</button>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    <button type="submit">Enviar Solicitud</button>
-</form>
-{% endblock content %}
+        {% if form.errors %}
+            <div class="error-container">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
